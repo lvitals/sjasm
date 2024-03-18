@@ -5,7 +5,7 @@
 
 	output "hello.bin"
 
-CHPUT:	equ 000A2h	; Set the address of character output routine of main Rom BIOS
+CHPUT: equ 000A2h	; Set the address of character output routine of main Rom BIOS
         		; Main Rom is already selected (0000h ~ 7FFFh) under MSX-Basic
 
 ; --> BLOAD header, before the ORG so that the header isn’t counted
