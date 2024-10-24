@@ -403,7 +403,9 @@ void preinc(Data &e, Op x) {
           break;
 
       default:
-          error("Unhandled register: " + std::to_string(x.reg));
+          if (options.displayErrors) {
+            error("Unhandled register: " + std::to_string(x.reg));
+          }
           break;
   }
 }
@@ -432,7 +434,9 @@ void postinc(Data &e, Op x) {
     e.push(0x2b);
     break;
   default:
-    error("Unhandled register: " + std::to_string(x.reg));
+    if (options.displayErrors) {
+      error("Unhandled register: " + std::to_string(x.reg));
+    }
     break;
   }
 }
@@ -1042,7 +1046,9 @@ void pmLD(string line,Data &e) {
         case Z80_R:
 
         default:
-            error("Unhandled register: " + std::to_string(y.reg));
+            if (options.displayErrors) {
+              error("Unhandled register: " + std::to_string(y.reg));
+            }
             break;
     }
     break;
@@ -1077,7 +1083,9 @@ void pmLD(string line,Data &e) {
       postinc(e, x);
       break;
     default:
-      error("Unhandled register: " + std::to_string(y.reg));
+      if (options.displayErrors) {
+        error("Unhandled register: " + std::to_string(y.reg));
+      }
       break;
     }
     break;
@@ -1112,7 +1120,9 @@ void pmLD(string line,Data &e) {
       postinc(e, x);
       break;
     default:
-      error("Unhandled register: " + std::to_string(y.reg));
+      if (options.displayErrors) {
+        error("Unhandled register: " + std::to_string(y.reg));
+      }
       break;
     }
     break;
@@ -1137,7 +1147,9 @@ void pmLD(string line,Data &e) {
       e.push(0x33 + y.reg);
       break;
     default:
-      error("Unhandled register: " + std::to_string(y.reg));
+      if (options.displayErrors) {
+        error("Unhandled register: " + std::to_string(y.reg));
+      }
       break;
     }
     if (!e.size())
@@ -1182,7 +1194,9 @@ void pmLD(string line,Data &e) {
       e[1] = 0x5f;
       break;
     default:
-      error("Unhandled register: " + std::to_string(y.reg));
+      if (options.displayErrors) {
+        error("Unhandled register: " + std::to_string(y.reg));
+      }
       break;
     }
     if (e.size()) break;
@@ -1264,7 +1278,9 @@ void pmLD(string line,Data &e) {
       e.push(0x45 + x.reg * 8);
       break;
     default:
-      error("Unhandled register: " + std::to_string(y.reg));
+      if (options.displayErrors) {
+        error("Unhandled register: " + std::to_string(y.reg));
+      }
       break;
     }
     break;
@@ -1280,7 +1296,9 @@ void pmLD(string line,Data &e) {
       e.push(0xf9);
       break;
     default:
-      error("Unhandled register: " + std::to_string(y.reg));
+      if (options.displayErrors) {
+        error("Unhandled register: " + std::to_string(y.reg));
+      }
       break;
     }
     if (e.size()) break;
@@ -1300,7 +1318,9 @@ void pmLD(string line,Data &e) {
       e.push(x.reg - 15);
       break;
     default:
-      error("Unhandled register: " + std::to_string(y.reg));
+      if (options.displayErrors) {
+        error("Unhandled register: " + std::to_string(y.reg));
+      }
       break;
     }
     if (!e.size()) break;
@@ -1322,7 +1342,9 @@ void pmLD(string line,Data &e) {
       e.push(0x21);
       break;
     default:
-      error("Unhandled register: " + std::to_string(y.reg));
+      if (options.displayErrors) {
+        error("Unhandled register: " + std::to_string(y.reg));
+      }
       break;
     }
     if (!e.size()) break;
@@ -1361,7 +1383,9 @@ void pmLD(string line,Data &e) {
         e.push(check8(y.val));
         break;
       default:
-        error("Unhandled register: " + std::to_string(x.reg));
+        if (options.displayErrors) {
+          error("Unhandled register: " + std::to_string(x.reg));
+        }
         break;
       }
       break;
@@ -1421,11 +1445,15 @@ void pmLD(string line,Data &e) {
         e.push(0x68 + y.reg);
         break;
       default:
-        error("Unhandled register: " + std::to_string(y.reg));
+        if (options.displayErrors) {
+          error("Unhandled register: " + std::to_string(y.reg));
+        }
         break;
       }
       default:
-        error("Unhandled register: " + std::to_string(y.reg));
+        if (options.displayErrors) {
+          error("Unhandled register: " + std::to_string(y.reg));
+        }
         break;
     }
     break;
@@ -1434,7 +1462,9 @@ void pmLD(string line,Data &e) {
     e[0]=0xed; e[1]=0x4f;
     break;
   default:
-    error("Unhandled register: " + std::to_string(y.reg));
+    if (options.displayErrors) {
+      error("Unhandled register: " + std::to_string(y.reg));
+    }
     break;
   }
   if (!e.size()) error("Illegal operand",ERRREP);

@@ -60,6 +60,7 @@ Options() : listloops(false), listmacros(true), onlybp(false), useldradr(true), 
   bool usemovlsl;          // use mov\lsl if possible with ldr              ARM
   bool allpages;           // must all pages exist?
   bool optimizejumps;      // convert jumps (jp/jr/djnz)                    MSX
+  bool displayErrors;      // Global variable to control error display
 };
 
 class Rout;

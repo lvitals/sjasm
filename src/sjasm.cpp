@@ -98,6 +98,7 @@ void getoptions(char **&argv,int &i) {
 //      case 'l': labellisting=1; partlisting=1; break;
       case 'i': paths.push_back(p); p[0]=0; break;
       case 'j': options.optimizejumps=true; break;
+      case 'e': options.displayErrors=true; break;
       default:
         cout << "Unrecognised option: " << c << endl;
         break;
@@ -132,6 +133,7 @@ int main(int argc, char *argv[]) {
 //    cout << "  -q        No listing\n";
     cout << "  -i<path>  Includepath\n";
     cout << "  -j        Optimize jumps\n";
+    cout << "  -e        Display 'Unhandled register' error messages\n";
     exit(1);
   }
 
