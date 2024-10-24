@@ -403,7 +403,7 @@ void preinc(Data &e, Op x) {
           break;
 
       default:
-          error("Unhandled register", x.reg);
+          error("Unhandled register: " + std::to_string(x.reg));
           break;
   }
 }
@@ -432,7 +432,7 @@ void postinc(Data &e, Op x) {
     e.push(0x2b);
     break;
   default:
-    error("Unhandled register", x.reg);
+    error("Unhandled register: " + std::to_string(x.reg));
     break;
   }
 }
