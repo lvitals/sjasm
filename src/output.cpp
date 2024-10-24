@@ -77,52 +77,68 @@ void Rout::set(string line) {
   _pages.assign(pages.begin(),pages.end());
   _multipage=0;
 
-  switch (line.empty()) {
-  case 0:
-    if (sbcneed(line,'!')) {
-      _overlay=true;
-      if (!ParseExpression(line,val)) error("Overlay code part needs a address");
-      _minadres=_maxadres=val;
-      _adrmode=ATADRES;
-      break;
-    }
-    if (sbcneed(line,'?')) _forgetmode=DOFORGET; else _forgetmode=NEVERFORGET;
-    comma(line);
-    if (sbcneed(line,'@')) {
-      if (sbcneed(line,'*')) {
-        _adrmode=ANYADRES; _minadres=0; _maxadres=BIGVALUE;
+  if (!line.empty()) {
+      if (sbcneed(line, '!')) {
+          _overlay = true;
+          if (!ParseExpression(line, val)) {
+              error("Overlay code part needs an address");
+          }
+          _minadres = _maxadres = val;
+          _adrmode = ATADRES;
+      } else if (sbcneed(line, '?')) {
+          _forgetmode = DOFORGET;
       } else {
-        synerr=0;
-        if (ParseExpression(line,val)) _minadres=val; else _minadres=0;
-        if (need(line,const_cast<char *>(".."))) {
-          if (ParseExpression(line,val)) _maxadres=val; else _maxadres=BIGVALUE;
-          _adrmode=ARANGE;
-        } else {
-          _adrmode=ATADRES; _maxadres=_minadres;
-        }
-        synerr=1;
+          _forgetmode = NEVERFORGET;
       }
-      if (!comma(line)) break;
-    }
-    if (sbcneed(line,'#')) {
-      if (cneed(line,'#')) _byteadr=true;
-      else if (!ParseExpression(line,_align) || _align<1) { error("Illegal alignment"); _align=1; }
-      if (!comma(line)) break;
-    }
-    skipblanks(line);
-    if (cmphstr(line,"page")) {
-      getpage(line,_pages);
-      break;
-    }
-    if (cmphstr(line,"pages")) {
-      getpage(line,_pages);
-      _multipage=1;
-      break;
-    }
-    break;
-  default:
-    break;
+
+      comma(line);
+
+      if (sbcneed(line, '@')) {
+          if (sbcneed(line, '*')) {
+              _adrmode = ANYADRES;
+              _minadres = 0;
+              _maxadres = BIGVALUE;
+          } else {
+              synerr = 0;
+              if (ParseExpression(line, val)) {
+                  _minadres = val;
+              } else {
+                  _minadres = 0;
+              }
+              if (need(line, const_cast<char *>(".."))) {
+                  if (ParseExpression(line, val)) {
+                      _maxadres = val;
+                  } else {
+                      _maxadres = BIGVALUE;
+                  }
+                  _adrmode = ARANGE;
+              } else {
+                  _adrmode = ATADRES;
+                  _maxadres = _minadres;
+              }
+              synerr = 1;
+          }
+      }
+
+      if (sbcneed(line, '#')) {
+          if (cneed(line, '#')) {
+              _byteadr = true;
+          } else if (!ParseExpression(line, _align) || _align < 1) {
+              error("Illegal alignment");
+              _align = 1;
+          }
+      }
+
+      skipblanks(line);
+
+      if (cmphstr(line, "page")) {
+          getpage(line, _pages);
+      } else if (cmphstr(line, "pages")) {
+          getpage(line, _pages);
+          _multipage = 1;
+      }
   }
+
 
   if ((unsigned)_minadres>(unsigned)_maxadres) { _minadres=_maxadres; error("Invalid addressrange"); }
 
@@ -402,10 +418,16 @@ void Output::sort() {
     if (_page[i] && _page[j]) _page[i]->setorg(_page[j]->getorg()+_page[j]->getsize());
   }
 
-  for (i=0; i!=_rout.size(); ++i)
-    if (_rout[i] && _rout[i]->makepart(overlay,pm,am,npage,nadres,nlen,nalign,nalignmode,nmultipart))
-      if (overlay) oparts.push_back(Part(i,npage,nadres,nlen,nalign,nalignmode,_rout[i],0));
-      else parts[pm][am].push_back(Part(i,npage,nadres,nlen,nalign,nalignmode,_rout[i],nmultipart));
+  for (i = 0; i != _rout.size(); ++i) {
+      if (_rout[i] && _rout[i]->makepart(overlay, pm, am, npage, nadres, nlen, nalign, nalignmode, nmultipart)) {
+          if (overlay) {
+              oparts.push_back(Part(i, npage, nadres, nlen, nalign, nalignmode, _rout[i], 0));
+          } else {
+              parts[pm][am].push_back(Part(i, npage, nadres, nlen, nalign, nalignmode, _rout[i], nmultipart));
+          }
+      }
+  }
+
   for (pm=0; pm!=2; ++pm) {
     parts[pm][ATADRES].sort(sortadres);
     parts[pm][ARANGE].sort(sortlen);

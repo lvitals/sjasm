@@ -71,7 +71,7 @@ string tolower(string b) {
   const char *op=b.c_str();
   if (b.length()+1>64) bp=p=(char*)malloc(b.length()+1);
   else bp=p=tobuffer;
-  while(*p++=(char)tolower(*op)) ++op;
+  while ((*p++ = (char)tolower(*op))) ++op;
   return bp;
 }
 
@@ -307,7 +307,7 @@ StringList getarguments(string &p) {
   int pos,haakjes=0,heind,accolade=0;
   StringList a;
   string res;
-  if (heind=(p[0]=='(')) p.erase(0,1);
+  if ((heind = (p[0] == '('))) p.erase(0, 1);
   skipblanks(p);
   for(;;) {
     switch (p[0]) {

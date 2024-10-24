@@ -77,9 +77,13 @@ void getbytes(string &line, Data &e, bool madd, bool usemap, bool canval, bool d
       glabelnotfound+=labelnotfound;
     }
     if (dz) e.push(0);
-    if (dc)
-      if (!len) error("Empty string not allowed");
-      else  e[e.size()-1]=e[e.size()-1]|128;
+    if (dc) {
+        if (!len) {
+            error("Empty string not allowed");
+        } else {
+            e[e.size()-1] = e[e.size()-1] | 128;
+        }
+    }
     if (!comma(line)) break;
   }
   labelnotfound=glabelnotfound;

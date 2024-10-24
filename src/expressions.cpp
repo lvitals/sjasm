@@ -229,7 +229,7 @@ int ParseExpAdd(string &p, int &nval) {
   int left,right;
   int oper;
   if (!ParseExpMul(p,left)) return 0;
-  while (oper=need(p,const_cast<char *>("+ - "))) {
+  while ((oper=need(p,const_cast<char *>("+ - ")))) {
     if (!ParseExpMul(p,right)) return 0;
     switch (oper) {
     case '+': left+=right; break;
@@ -262,7 +262,7 @@ int ParseExpMinMax(string &p, int &nval) {
   int left,right;
   int oper;
   if (!ParseExpShift(p,left)) return 0;
-  while (oper=need(p,const_cast<char *>("<?>?"))) {
+  while ((oper=need(p,const_cast<char *>("<?>?")))) {
     if (!ParseExpShift(p,right)) return 0;
     switch (oper) {
     case '<'+'?': left=left<right?left:right; break;
@@ -277,7 +277,7 @@ int ParseExpCmp(string &p, int &nval) {
   int left,right;
   int oper;
   if (!ParseExpMinMax(p,left)) return 0;
-  while (oper=need(p,const_cast<char *>("<=>=< > "))) {
+  while ((oper=need(p,const_cast<char *>("<=>=< > ")))) {
     if (!ParseExpMinMax(p,right)) return 0;
     switch (oper) {
     case '<': left=-(left<right); break;
@@ -294,7 +294,7 @@ int ParseExpEqu(string &p, int &nval) {
   int left,right;
   int oper;
   if (!ParseExpCmp(p,left)) return 0;
-  while (oper=need(p,const_cast<char *>("=_==!="))) {
+  while ((oper=need(p,const_cast<char *>("=_==!=")))) {
     if (!ParseExpCmp(p,right)) return 0;
     switch (oper) {
     case '=':

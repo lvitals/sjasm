@@ -49,7 +49,13 @@ StringList structurenl,structureel;
 string getbuildindefine(string d, string &) {
   if (d[d.size()-1]!='_') return "";
   if (d=="__LINE__") return tostr(curlin);
-  if (d=="__MODULE__") if (modlabp.empty()) return " "; else return modlabp;
+  if (d == "__MODULE__") {
+      if (modlabp.empty()) {
+          return " ";
+      } else {
+          return modlabp;
+      }
+  }
   if (d=="__VERSION__") return VERSION;
   if (d=="__FILE__") return listopt._filename;
   if (d=="__OUTPUT__") return destfilename;
@@ -509,9 +515,13 @@ int pregetmacro(string &line, bool icase, RawSource *rs, bool list, bool recursi
         }
       } else mac._maxnum=mac._minnum;
       if (mac._minnum<0 || mac._maxnum<mac._minnum) { error1("Illegal parameter"); return 0; }
-      if (sbcneed(line,'+'))
-        if (mac._maxnum<BIGVALUE) mac._greedy=true;
-        else error1("No greedy stars allowed!");
+      if (sbcneed(line, '+')) {
+          if (mac._maxnum < BIGVALUE) {
+              mac._greedy = true;
+          } else {
+              error1("No greedy stars allowed!");
+          }
+      }
       break;
     }
     if (sbcneed(line,'*')) {

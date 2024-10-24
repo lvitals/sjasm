@@ -161,7 +161,7 @@ public:
   int exec(string nname, string &line, TT *container) {
     int tr,htr,otr;
     otr=tr=_hash(nname);
-    while(htr=_hashtable[tr]) {
+   while((htr = _hashtable[tr])) {
       if (_funtab[htr]._name==nname) { (*_funtab[htr]._funp)(line,container); return 1; }
       if (++tr>=FUNTABSIZE) tr=0;
       if (tr==otr) break;
@@ -193,7 +193,7 @@ private:
 #endif
     int tr,htr;
     tr=_hash(nname);
-    while(htr=_hashtable[tr]) {
+    while((htr=_hashtable[tr])) {
       if (_funtab[htr]._name==nname) return 0;
       else { if (++tr>=FUNTABSIZE) tr=0; }
     }

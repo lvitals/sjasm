@@ -134,7 +134,7 @@ void DefineTable::add(string n_name,string n_repl) {
   } else {
     int tr,htr;
     tr=_hash(n_name);
-    while(htr=_hashtable[tr]) {
+    while((htr=_hashtable[tr])) {
       if (_deftab[htr]._name==n_name && _deftab[htr]._args.size()==0) error("DefineTable::add",ERRINTERNAL);
       else if (++tr>=_size) tr=0;
     }
@@ -161,7 +161,7 @@ void DefineTable::add(string n_name,string n_repl,bool n_icase,StringList n_args
     if (n_icase) n_name=tolower(n_name);
     int tr,htr;
     tr=_hash(n_name);
-    while(htr=_hashtable[tr]) {
+    while((htr=_hashtable[tr])) {
       if (_deftab[htr]._name==n_name && _deftab[htr]._args.size()==n_args.size()) error("DefineTable::add",ERRINTERNAL);
       else if (++tr>=_size) tr=0;
     }
@@ -213,7 +213,7 @@ int DefineTable::exists(string name,int narg) {
   int tr,htr,otr;
   if (!_used[name[0]&63]) return 0;
   otr=tr=_hash(name);
-  while(htr=_hashtable[tr]) {
+  while((htr=_hashtable[tr])) {
     if (_deftab[htr]._name==name && !_deftab[htr]._used) {
       if (narg) {
 	if (!_deftab[htr]._args.size()) return -1;
@@ -229,7 +229,7 @@ int DefineTable::exists(string name,int narg) {
 
   name=tolower(name);
   otr=tr=_hash(name);
-  while(htr=_hashtable[tr]) {
+  while((htr=_hashtable[tr])) {
     if (_deftab[htr]._name==name && _deftab[htr]._icase && !_deftab[htr]._used) {
       if (narg) {
 	if (!_deftab[htr]._args.size()) return -1;
@@ -278,7 +278,7 @@ int LabelTable::insert(string n_name,bool n_set) {
   if (_nextlocation>=_size*2/3) _grow();
   int tr,htr;
   tr=_hash(n_name);
-  while(htr=_hashtable[tr]) {
+  while((htr=_hashtable[tr])) {
     if (_labtab[htr]._name==n_name) return 0;
     else if (++tr>=_size) tr=0;
   }
@@ -308,14 +308,16 @@ void LabelTable::getvalue(int loc,int &val,int &page) {
 
 int LabelTable::getvalue(string name,int &val,int &page) {
   int htr;
-  if (htr=getindex(name)) {
-    val=_labtab[htr]._val;
-    page=_labtab[htr]._page;
-    if (pass==1 && _labtab[htr]._forward) labelnotfound=1;
-    Rout* thisrout=output[onr]->getroutp();
-    if (thisrout!=_labtab[htr]._rout && !thisrout->forget()) _labtab[htr]._rout->used();
-    _labtab[htr]._lastpass=pass;
-    return 1;
+  if ((htr = getindex(name))) {
+      val = _labtab[htr]._val;
+      page = _labtab[htr]._page;
+      if (pass == 1 && _labtab[htr]._forward) labelnotfound = 1;
+      Rout* thisrout = output[onr]->getroutp();
+      if (thisrout != _labtab[htr]._rout && !thisrout->forget()) {
+          _labtab[htr]._rout->used();
+      }
+      _labtab[htr]._lastpass = pass;
+      return 1;
   }
   return 0;
 }
@@ -323,7 +325,7 @@ int LabelTable::getvalue(string name,int &val,int &page) {
 int LabelTable::getindex(string name) {
   int tr,htr,otr;
   otr=tr=_hash(name);
-  while(htr=_hashtable[tr]) {
+  while((htr=_hashtable[tr])) {
     if (_labtab[htr]._name==name) return htr;
     if (++tr>=_size) tr=0;
     if (tr==otr) break;
@@ -434,7 +436,7 @@ void MacroTable::add(string n_name, bool n_icase, Macro n_mac) {
     if (n_icase) n_name=tolower(n_name);
     int tr,htr;
     tr=_hash(n_name);
-    while(htr=_hashtable[tr]) {
+    while((htr=_hashtable[tr])) {
       if (_mactab[htr]._name==n_name) error("MacroTable::add",ERRINTERNAL);
       else if (++tr>=_size) tr=0;
     }
@@ -545,14 +547,14 @@ int MacroTable::emit(string &line, RawSource *rs, bool fun) {
 int MacroTable::exists(string name) {
   int tr,htr,otr;
   otr=tr=_hash(name);
-  while(htr=_hashtable[tr]) {
+  while((htr=_hashtable[tr])) {
     if (_mactab[htr]._name==name) return htr;
     if (++tr>=_size) tr=0;
     if (tr==otr) break;
   }
   name=tolower(name);
   otr=tr=_hash(name);
-  while(htr=_hashtable[tr]) {
+  while((htr=_hashtable[tr])) {
     if (_mactab[htr]._name==name && _mactab[htr]._icase) return htr;
     if (++tr>=_size) tr=0;
     if (tr==otr) break;
@@ -688,7 +690,7 @@ int StructTable::add(Structure ns) {
   if(exists(ns._name)) { error("Structure already exists",ns._name); return 0; }
   int tr,htr;
   tr=_hash(ns._name);
-  while(htr=_hashtable[tr]) {
+  while((htr=_hashtable[tr])) {
     if (_structtab[htr]._name==ns._name) error("StructTable::add",ERRINTERNAL);
     else if (++tr>=_size) tr=0;
   }
@@ -712,7 +714,7 @@ int StructTable::emit(string &line, RawSource *rs, const string &label) {
 int StructTable::exists(string name) {
   int tr,htr,otr;
   otr=tr=_hash(name);
-  while(htr=_hashtable[tr]) {
+  while((htr=_hashtable[tr])) {
     if (_structtab[htr]._name==name) return htr;
     if (++tr>=_size) tr=0;
     if (tr==otr) break;

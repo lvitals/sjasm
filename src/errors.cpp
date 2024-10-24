@@ -94,7 +94,7 @@ int ErrorTable::add(int n_line,string n_msg,int n_type) {
   if (_nextlocation>=_size*2/3) _grow();
   int tr,htr;
   tr=_hash(n_line);
-  while(htr=_hashtable[tr]) {
+  while((htr=_hashtable[tr])) {
     if (_errtab[htr]._line==n_line && pass>2 || _errtab[htr]._msg==n_msg) return 0;
     if (++tr>=_size) tr=0;
   }
@@ -108,7 +108,7 @@ int ErrorTable::add(int n_line,string n_msg,int n_type) {
 
 void ErrorTable::geterrors(int linenr, StringList &list) {
   int e,p=_hash(linenr);
-  while (e=_hashtable[p]) {
+  while ((e=_hashtable[p])) {
     if (_errtab[e]._line==linenr) {
       cout << _errtab[e]._msg << endl;
       list.push_back(_errtab[e]._msg);
