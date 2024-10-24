@@ -413,30 +413,30 @@ void preinc(Data &e, Op x) {
 void postinc(Data &e, Op x) {
   switch (x.reg)
   {
-  case Z80mBCi:
-  case Z80mDEi:
-  case Z80mHLi:
-    e.push(x.reg - 16);
-    break;
-  case Z80mIXi:
-  case Z80mIYi:
-    e.push(x.reg - 3);
-    e.push(0x23);
-    break;
-  case Z80mBCd:
-  case Z80mDEd:
-  case Z80mHLd:
-    e.push(x.reg - 9);
-    break;
-  case Z80mIXd:
-  case Z80mIYd:
-    e.push(x.reg - 4);
-    e.push(0x2b);
-    break;
-  default:
-    if (options.displayErrors) {
-      error("Unhandled register: " + std::to_string(x.reg));
-    }
+    case Z80mBCi:
+    case Z80mDEi:
+    case Z80mHLi:
+      e.push(x.reg - 16);
+      break;
+    case Z80mIXi:
+    case Z80mIYi:
+      e.push(x.reg - 3);
+      e.push(0x23);
+      break;
+    case Z80mBCd:
+    case Z80mDEd:
+    case Z80mHLd:
+      e.push(x.reg - 9);
+      break;
+    case Z80mIXd:
+    case Z80mIYd:
+      e.push(x.reg - 4);
+      e.push(0x2b);
+      break;
+    default:
+      if (options.displayErrors) {
+        error("Unhandled register: " + std::to_string(x.reg));
+      }
     break;
   }
 }
@@ -1007,14 +1007,54 @@ void pmLD(string line,Data &e) {
   Op x,y;
   if (getOperands2(line,x,y)!=2) { error("Illegal operand",ERRREP); return; }
   switch (x.reg) {
-  case Z80mBC: case Z80miBC: case Z80mdBC: case Z80mBCi: case Z80mBCd: 
-    if (y.reg!=Z80_A) break;
-    preinc(e,x); e.push(0x02); postinc(e,x); break;
-  case Z80mDE: case Z80miDE: case Z80mdDE: case Z80mDEi: case Z80mDEd: 
-    if (y.reg!=Z80_A) break;
-    preinc(e,x); e.push(0x12); postinc(e,x); break;
-  case Z80mHL: case Z80miHL: case Z80mdHL: case Z80mHLi: case Z80mHLd:
-    switch (y.reg) {
+    case Z80mBC: case Z80miBC: case Z80mdBC: case Z80mBCi: case Z80mBCd: 
+      if (y.reg!=Z80_A) break;
+      preinc(e,x); e.push(0x02); postinc(e,x); break;
+    case Z80mDE: case Z80miDE: case Z80mdDE: case Z80mDEi: case Z80mDEd: 
+      if (y.reg!=Z80_A) break;
+      preinc(e,x); e.push(0x12); postinc(e,x); break;
+    case Z80mHL: case Z80miHL: case Z80mdHL: case Z80mHLi: case Z80mHLd:
+      switch (y.reg) {
+          case Z80_A:
+          case Z80_B:
+          case Z80_C:
+          case Z80_D:
+          case Z80_E:
+          case Z80_H:
+          case Z80_L:
+              preinc(e, x);
+              e.push(0x70 + y.reg);
+              postinc(e, x);
+              break;
+
+          case Z80mnn:
+              if (y.ind == 2) { 
+                  error("indirection not allowed"); 
+                  break; 
+              }
+              break;
+
+          case Z80_nn:
+              preinc(e, x);
+              e.push(0x36);
+              e.push(check8(y.val));
+              postinc(e, x);
+              break;
+
+          case Z80_UNK:
+          case Z80_I:
+          case Z80_R:
+
+          default:
+              if (options.displayErrors) {
+                error("Unhandled register Z80mHL, Z80miHL, Z80mdHL, Z80mHLi, Z80mHLd: " + std::to_string(y.reg));
+              }
+              break;
+      }
+      break;
+    case Z80mIX: case Z80miIX: case Z80mdIX: case Z80mIXi: case Z80mIXd:
+      switch (y.reg)
+      {
         case Z80_A:
         case Z80_B:
         case Z80_C:
@@ -1022,450 +1062,415 @@ void pmLD(string line,Data &e) {
         case Z80_E:
         case Z80_H:
         case Z80_L:
-            preinc(e, x);
-            e.push(0x70 + y.reg);
-            postinc(e, x);
-            break;
-
+          preinc(e, x);
+          e.push(0xdd);
+          e.push(0x70 + y.reg);
+          e.push(checki(x.val));
+          postinc(e, x);
+          break;
         case Z80mnn:
-            if (y.ind == 2) { 
-                error("indirection not allowed"); 
-                break; 
-            }
+          if (y.ind == 2)
+          {
+            error("indirection not allowed");
             break;
-
+          }
         case Z80_nn:
-            preinc(e, x);
-            e.push(0x36);
-            e.push(check8(y.val));
-            postinc(e, x);
-            break;
-
-        case Z80_UNK:
-        case Z80_I:
-        case Z80_R:
-
+          preinc(e, x);
+          e.push(0xdd);
+          e.push(0x36);
+          e.push(checki(x.val));
+          e.push(check8(y.val));
+          postinc(e, x);
+          break;
         default:
-            if (options.displayErrors) {
-              error("Unhandled register: " + std::to_string(y.reg));
-            }
+          if (options.displayErrors) {
+            error("Unhandled register Z80mIX, Z80miIX, Z80mdIX, Z80mIXi, Z80mIXd: " + std::to_string(y.reg));
+          }
+          break;
+      }
+      break;
+    case Z80mIY: case Z80miIY: case Z80mdIY: case Z80mIYi: case Z80mIYd:
+      switch (y.reg)
+      {
+        case Z80_A:
+        case Z80_B:
+        case Z80_C:
+        case Z80_D:
+        case Z80_E:
+        case Z80_H:
+        case Z80_L:
+          preinc(e, x);
+          e.push(0xfd);
+          e.push(0x70 + y.reg);
+          e.push(checki(x.val));
+          postinc(e, x);
+          break;
+        case Z80mnn:
+          if (y.ind == 2)
+          {
+            error("indirection not allowed");
             break;
-    }
-    break;
-  case Z80mIX: case Z80miIX: case Z80mdIX: case Z80mIXi: case Z80mIXd:
-    switch (y.reg)
-    {
-    case Z80_A:
-    case Z80_B:
-    case Z80_C:
-    case Z80_D:
-    case Z80_E:
-    case Z80_H:
-    case Z80_L:
-      preinc(e, x);
-      e.push(0xdd);
-      e.push(0x70 + y.reg);
-      e.push(checki(x.val));
-      postinc(e, x);
+          }
+        case Z80_nn:
+          preinc(e, x);
+          e.push(0xfd);
+          e.push(0x36);
+          e.push(checki(x.val));
+          e.push(check8(y.val));
+          postinc(e, x);
+          break;
+        default:
+          if (options.displayErrors) {
+            error("Unhandled register Z80mIY, Z80miIY, Z80mdIY, Z80mIYi, Z80mIYd:  " + std::to_string(y.reg));
+          }
+          break;
+      }
       break;
     case Z80mnn:
-      if (y.ind == 2)
+      switch (y.reg)
       {
-        error("indirection not allowed");
+        case Z80_A:
+          e.push(0x32);
+          break;
+        case Z80_HL:
+          e.push(0x22);
+          break;
+        case Z80_IX:
+        case Z80_IY:
+          e.push(y.reg);
+          e.push(0x22);
+          break;
+        case Z80_BC:
+        case Z80_DE:
+        case Z80_SP:
+          e.push(0xed);
+          e.push(0x33 + y.reg);
+          break;
+        default:
+          if (options.displayErrors) {
+             error("Unhandled register Z80mnn: " + std::to_string(y.reg));
+          }
+          break;
+        }
+        if (!e.size()) {
+          break;
+        }
+        check16(x.val);
+        e.push((unsigned char)x.val);
+        e.push((unsigned char)(x.val >> 8));
+      break;
+    case Z80_A:
+      switch (y.reg)
+      {
+        case Z80mBC:
+        case Z80miBC:
+        case Z80mdBC:
+        case Z80mBCi:
+        case Z80mBCd:
+          preinc(e, y);
+          e.push(0x0a);
+          postinc(e, y);
+          break;
+        case Z80mDE:
+        case Z80miDE:
+        case Z80mdDE:
+        case Z80mDEi:
+        case Z80mDEd:
+          preinc(e, y);
+          e.push(0x1a);
+          postinc(e, y);
+          break;
+        case Z80mnn:
+          e.push(0x3a);
+          check16(y.val);
+          e.push((unsigned char)y.val);
+          e.push((unsigned char)(y.val >> 8));
+          break;
+        case Z80_I:
+          e[0] = 0xed;
+          e[1] = 0x57;
+          break;
+        case Z80_R:
+          e[0] = 0xed;
+          e[1] = 0x5f;
+          break;
+        default:
+          if (options.displayErrors) {
+             error("Unhandled register Z80_A: " + std::to_string(y.reg));
+          }
+          break;
+      }
+      if (e.size()) {
         break;
       }
-    case Z80_nn:
-      preinc(e, x);
-      e.push(0xdd);
-      e.push(0x36);
-      e.push(checki(x.val));
-      e.push(check8(y.val));
-      postinc(e, x);
-      break;
-    default:
-      if (options.displayErrors) {
-        error("Unhandled register: " + std::to_string(y.reg));
-      }
-      break;
-    }
-    break;
-  case Z80mIY: case Z80miIY: case Z80mdIY: case Z80mIYi: case Z80mIYd:
-    switch (y.reg)
-    {
-    case Z80_A:
-    case Z80_B:
-    case Z80_C:
-    case Z80_D:
-    case Z80_E:
-    case Z80_H:
-    case Z80_L:
-      preinc(e, x);
-      e.push(0xfd);
-      e.push(0x70 + y.reg);
-      e.push(checki(x.val));
-      postinc(e, x);
-      break;
-    case Z80mnn:
-      if (y.ind == 2)
+    case Z80_B: case Z80_C: case Z80_D: case Z80_E: case Z80_H: case Z80_L:
+      switch (y.reg)
       {
-        error("indirection not allowed");
-        break;
+        case Z80mHL:
+        case Z80miHL:
+        case Z80mdHL:
+        case Z80mHLi:
+        case Z80mHLd:
+          preinc(e, y);
+          e.push(0x46 + x.reg * 8);
+          postinc(e, y);
+          break;
+        case Z80mIX:
+        case Z80miIX:
+        case Z80mdIX:
+        case Z80mIXi:
+        case Z80mIXd:
+          preinc(e, y);
+          e.push(0xdd);
+          e.push(0x46 + x.reg * 8);
+          e.push(checki(y.val));
+          postinc(e, y);
+          break;
+        case Z80mIY:
+        case Z80miIY:
+        case Z80mdIY:
+        case Z80mIYi:
+        case Z80mIYd:
+          preinc(e, y);
+          e.push(0xfd);
+          e.push(0x46 + x.reg * 8);
+          e.push(checki(y.val));
+          postinc(e, y);
+          break;
+        case Z80_A:
+        case Z80_B:
+        case Z80_C:
+        case Z80_D:
+        case Z80_E:
+        case Z80_H:
+        case Z80_L:
+          e.push(0x40 + x.reg * 8 + y.reg);
+          break;
+        case Z80mnn:
+          if (y.ind == 2)
+          {
+            error("indirection not allowed");
+            break;
+          }
+        case Z80_nn:
+          e.push(0x06 + x.reg * 8);
+          e.push(check8(y.val));
+          break;
+        case Z80_IXH:
+          if (x.reg == Z80_H || x.reg == Z80_L)
+            break;
+          e.push(0xdd);
+          e.push(0x44 + x.reg * 8);
+          break;
+        case Z80_IXL:
+          if (x.reg == Z80_H || x.reg == Z80_L)
+            break;
+          e.push(0xdd);
+          e.push(0x45 + x.reg * 8);
+          break;
+        case Z80_IYH:
+          if (x.reg == Z80_H || x.reg == Z80_L)
+            break;
+          e.push(0xfd);
+          e.push(0x44 + x.reg * 8);
+          break;
+        case Z80_IYL:
+          if (x.reg == Z80_H || x.reg == Z80_L)
+            break;
+          e.push(0xfd);
+          e.push(0x45 + x.reg * 8);
+          break;
+        default:
+          if (options.displayErrors) {
+            error("Unhandled register Z80_B, Z80_C, Z80_D, Z80_E, Z80_H, Z80_L: " + std::to_string(y.reg));
+          }
+          break;
       }
-    case Z80_nn:
-      preinc(e, x);
-      e.push(0xfd);
-      e.push(0x36);
-      e.push(checki(x.val));
-      e.push(check8(y.val));
-      postinc(e, x);
       break;
-    default:
-      if (options.displayErrors) {
-        error("Unhandled register: " + std::to_string(y.reg));
-      }
-      break;
-    }
-    break;
-  case Z80mnn:
-    switch (y.reg)
-    {
-    case Z80_A:
-      e.push(0x32);
-      break;
-    case Z80_HL:
-      e.push(0x22);
-      break;
-    case Z80_IX:
-    case Z80_IY:
-      e.push(y.reg);
-      e.push(0x22);
-      break;
-    case Z80_BC:
-    case Z80_DE:
     case Z80_SP:
-      e.push(0xed);
-      e.push(0x33 + y.reg);
-      break;
-    default:
-      if (options.displayErrors) {
-        error("Unhandled register: " + std::to_string(y.reg));
-      }
-      break;
-    }
-    if (!e.size())
-      break;
-    check16(x.val);
-    e.push((unsigned char)x.val);
-    e.push((unsigned char)(x.val >> 8));
-    break;
-  case Z80_A:
-    switch (y.reg)
-    {
-    case Z80mBC:
-    case Z80miBC:
-    case Z80mdBC:
-    case Z80mBCi:
-    case Z80mBCd:
-      preinc(e, y);
-      e.push(0x0a);
-      postinc(e, y);
-      break;
-    case Z80mDE:
-    case Z80miDE:
-    case Z80mdDE:
-    case Z80mDEi:
-    case Z80mDEd:
-      preinc(e, y);
-      e.push(0x1a);
-      postinc(e, y);
-      break;
-    case Z80mnn:
-      e.push(0x3a);
-      check16(y.val);
-      e.push((unsigned char)y.val);
-      e.push((unsigned char)(y.val >> 8));
-      break;
-    case Z80_I:
-      e[0] = 0xed;
-      e[1] = 0x57;
-      break;
-    case Z80_R:
-      e[0] = 0xed;
-      e[1] = 0x5f;
-      break;
-    default:
-      if (options.displayErrors) {
-        error("Unhandled register: " + std::to_string(y.reg));
-      }
-      break;
-    }
-    if (e.size()) break;
-  case Z80_B: case Z80_C: case Z80_D: case Z80_E: case Z80_H: case Z80_L:
-    switch (y.reg)
-    {
-    case Z80mHL:
-    case Z80miHL:
-    case Z80mdHL:
-    case Z80mHLi:
-    case Z80mHLd:
-      preinc(e, y);
-      e.push(0x46 + x.reg * 8);
-      postinc(e, y);
-      break;
-    case Z80mIX:
-    case Z80miIX:
-    case Z80mdIX:
-    case Z80mIXi:
-    case Z80mIXd:
-      preinc(e, y);
-      e.push(0xdd);
-      e.push(0x46 + x.reg * 8);
-      e.push(checki(y.val));
-      postinc(e, y);
-      break;
-    case Z80mIY:
-    case Z80miIY:
-    case Z80mdIY:
-    case Z80mIYi:
-    case Z80mIYd:
-      preinc(e, y);
-      e.push(0xfd);
-      e.push(0x46 + x.reg * 8);
-      e.push(checki(y.val));
-      postinc(e, y);
-      break;
-    case Z80_A:
-    case Z80_B:
-    case Z80_C:
-    case Z80_D:
-    case Z80_E:
-    case Z80_H:
-    case Z80_L:
-      e.push(0x40 + x.reg * 8 + y.reg);
-      break;
-    case Z80mnn:
-      if (y.ind == 2)
+      switch (y.reg)
       {
-        error("indirection not allowed");
+      case Z80_HL:
+        e.push(0xf9);
         break;
-      }
-    case Z80_nn:
-      e.push(0x06 + x.reg * 8);
-      e.push(check8(y.val));
-      break;
-    case Z80_IXH:
-      if (x.reg == Z80_H || x.reg == Z80_L)
-        break;
-      e.push(0xdd);
-      e.push(0x44 + x.reg * 8);
-      break;
-    case Z80_IXL:
-      if (x.reg == Z80_H || x.reg == Z80_L)
-        break;
-      e.push(0xdd);
-      e.push(0x45 + x.reg * 8);
-      break;
-    case Z80_IYH:
-      if (x.reg == Z80_H || x.reg == Z80_L)
-        break;
-      e.push(0xfd);
-      e.push(0x44 + x.reg * 8);
-      break;
-    case Z80_IYL:
-      if (x.reg == Z80_H || x.reg == Z80_L)
-        break;
-      e.push(0xfd);
-      e.push(0x45 + x.reg * 8);
-      break;
-    default:
-      if (options.displayErrors) {
-        error("Unhandled register: " + std::to_string(y.reg));
-      }
-      break;
-    }
-    break;
-  case Z80_SP:
-    switch (y.reg)
-    {
-    case Z80_HL:
-      e.push(0xf9);
-      break;
-    case Z80_IX:
-    case Z80_IY:
-      e.push(y.reg);
-      e.push(0xf9);
-      break;
-    default:
-      if (options.displayErrors) {
-        error("Unhandled register: " + std::to_string(y.reg));
-      }
-      break;
-    }
-    if (e.size()) break;
-  case Z80_BC: case Z80_DE: case Z80_HL:
-    switch (y.reg)
-    {
-    case Z80mnn:
-      if (x.reg == Z80_HL)
-      {
-        e.push(0x2a);
-        break;
-      }
-      e.push(0xed);
-      e.push(0x3b + x.reg);
-      break;
-    case Z80_nn:
-      e.push(x.reg - 15);
-      break;
-    default:
-      if (options.displayErrors) {
-        error("Unhandled register: " + std::to_string(y.reg));
-      }
-      break;
-    }
-    if (!e.size()) break;
-    check16(y.val); e.push((unsigned char)y.val); e.push((unsigned char)(y.val>>8));
-    break;
-  case Z80_I:
-    if (y.reg!=Z80_A) break;
-    e[0]=0xed; e[1]=0x47;
-    break;
-  case Z80_IX: case Z80_IY:
-    switch (y.reg)
-    {
-    case Z80mnn:
-      e.push(x.reg);
-      e.push(0x2a);
-      break;
-    case Z80_nn:
-      e.push(x.reg);
-      e.push(0x21);
-      break;
-    default:
-      if (options.displayErrors) {
-        error("Unhandled register: " + std::to_string(y.reg));
-      }
-      break;
-    }
-    if (!e.size()) break;
-    check16(y.val); e.push((unsigned char)y.val); e.push((unsigned char)(y.val>>8));
-    break;
-  case Z80_IXH: case Z80_IXL: case Z80_IYH: case Z80_IYL:
-    switch (y.reg)
-    {
-    case Z80mnn:
-      if (y.ind == 2)
-      {
-        error("indirection not allowed");
-        break;
-      }
-    case Z80_nn:
-      switch (x.reg)
-      {
-      case Z80_IXH:
-        e.push(0xdd);
-        e.push(0x26);
-        e.push(check8(y.val));
-        break;
-      case Z80_IXL:
-        e.push(0xdd);
-        e.push(0x2e);
-        e.push(check8(y.val));
-        break;
-      case Z80_IYH:
-        e.push(0xfd);
-        e.push(0x26);
-        e.push(check8(y.val));
-        break;
-      case Z80_IYL:
-        e.push(0xfd);
-        e.push(0x2e);
-        e.push(check8(y.val));
+      case Z80_IX:
+      case Z80_IY:
+        e.push(y.reg);
+        e.push(0xf9);
         break;
       default:
         if (options.displayErrors) {
-          error("Unhandled register: " + std::to_string(x.reg));
+          error("Unhandled register Z80_SP: " + std::to_string(y.reg));
         }
         break;
       }
+      if (e.size()) {
+        break;
+      }
+    case Z80_BC: case Z80_DE: case Z80_HL:
+      switch (y.reg)
+      {
+        case Z80mnn:
+          if (x.reg == Z80_HL)
+          {
+            e.push(0x2a);
+            break;
+          }
+          e.push(0xed);
+          e.push(0x3b + x.reg);
+          break;
+        case Z80_nn:
+          e.push(x.reg - 15);
+          break;
+        default:
+          if (options.displayErrors) {
+            error("Unhandled register Z80_BC, Z80_DE, Z80_HL: " + std::to_string(y.reg));
+          }
+          break;
+      }
+      if (!e.size()) break;
+      check16(y.val); e.push((unsigned char)y.val); e.push((unsigned char)(y.val>>8));
       break;
-    case Z80_IXH:
-      if (y.reg == Z80_IXH) {
-          if (x.reg == Z80_IYH || x.reg == Z80_IYL) {
+    case Z80_I:
+      if (y.reg!=Z80_A) break;
+      e[0]=0xed; e[1]=0x47;
+      break;
+    case Z80_IX: case Z80_IY:
+      switch (y.reg)
+      {
+      case Z80mnn:
+        e.push(x.reg);
+        e.push(0x2a);
+        break;
+      case Z80_nn:
+        e.push(x.reg);
+        e.push(0x21);
+        break;
+      default:
+        if (options.displayErrors) {
+          error("Unhandled register Z80_IX, Z80_IY: " + std::to_string(y.reg));
+        }
+        break;
+      }
+      if (!e.size()) break;
+      check16(y.val); e.push((unsigned char)y.val); e.push((unsigned char)(y.val>>8));
+      break;
+    case Z80_IXH: case Z80_IXL: case Z80_IYH: case Z80_IYL:
+      switch (y.reg)
+      {
+      case Z80mnn:
+        if (y.ind == 2)
+        {
+          error("indirection not allowed");
+          break;
+        }
+      case Z80_nn:
+        switch (x.reg)
+        {
+          case Z80_IXH:
+            e.push(0xdd);
+            e.push(0x26);
+            e.push(check8(y.val));
+            break;
+          case Z80_IXL:
+            e.push(0xdd);
+            e.push(0x2e);
+            e.push(check8(y.val));
+            break;
+          case Z80_IYH:
+            e.push(0xfd);
+            e.push(0x26);
+            e.push(check8(y.val));
+            break;
+          case Z80_IYL:
+            e.push(0xfd);
+            e.push(0x2e);
+            e.push(check8(y.val));
+            break;
+          default:
+            if (options.displayErrors) {
+              error("Unhandled register Z80_nn: " + std::to_string(x.reg));
+            }
+            break;
+        }
+        break;
+      case Z80_IXH:
+        if (y.reg == Z80_IXH) {
+            if (x.reg == Z80_IYH || x.reg == Z80_IYL) {
+              break;
+            } else {
+              y.reg = Z80_H;
+            }
+        }
+      case Z80_IXL:
+        if (y.reg == Z80_IXL) {
+            if (x.reg == Z80_IYH || x.reg == Z80_IYL) {
+              break;
+            } else {
+              y.reg = Z80_L;
+            }
+        }
+      case Z80_IYH:
+        if (y.reg == Z80_IYH) {
+          if (x.reg == Z80_IXH || x.reg == Z80_IXL) {
             break;
           } else {
             y.reg = Z80_H;
           }
-      }
-    case Z80_IXL:
-      if (y.reg == Z80_IXL) {
-          if (x.reg == Z80_IYH || x.reg == Z80_IYL) {
+        }
+      case Z80_IYL:
+        if (y.reg == Z80_IYL) {
+          if (x.reg == Z80_IXH || x.reg == Z80_IXL) {
             break;
           } else {
             y.reg = Z80_L;
           }
-      }
-    case Z80_IYH:
-      if (y.reg == Z80_IYH) {
-        if (x.reg == Z80_IXH || x.reg == Z80_IXL) {
+        }
+      case Z80_A:
+      case Z80_B:
+      case Z80_C:
+      case Z80_D:
+      case Z80_E:
+        switch (x.reg)
+        {
+          case Z80_IXH:
+            e.push(0xdd);
+            e.push(0x60 + y.reg);
+            break;
+          case Z80_IXL:
+            e.push(0xdd);
+            e.push(0x68 + y.reg);
+            break;
+          case Z80_IYH:
+            e.push(0xfd);
+            e.push(0x60 + y.reg);
+            break;
+          case Z80_IYL:
+            e.push(0xfd);
+            e.push(0x68 + y.reg);
+            break;
+          default:
+            if (options.displayErrors) {
+              error("Unhandled register Z80_E: " + std::to_string(x.reg));
+            }
+            break;
+        }
+        default:
+          if (options.displayErrors) {
+            error("Unhandled register Z80_E");
+          }
           break;
-        } else {
-          y.reg = Z80_H;
-        }
       }
-    case Z80_IYL:
-      if (y.reg == Z80_IYL) {
-        if (x.reg == Z80_IXH || x.reg == Z80_IXL) {
-          break;
-        } else {
-          y.reg = Z80_L;
-        }
+      break;
+    case Z80_R:
+      if (y.reg!=Z80_A) break;
+      e[0]=0xed; e[1]=0x4f;
+      break;
+    default:
+      if (options.displayErrors) {
+       error("Unhandled register Z80_R");
       }
-    case Z80_A:
-    case Z80_B:
-    case Z80_C:
-    case Z80_D:
-    case Z80_E:
-      switch (x.reg)
-      {
-      case Z80_IXH:
-        e.push(0xdd);
-        e.push(0x60 + y.reg);
-        break;
-      case Z80_IXL:
-        e.push(0xdd);
-        e.push(0x68 + y.reg);
-        break;
-      case Z80_IYH:
-        e.push(0xfd);
-        e.push(0x60 + y.reg);
-        break;
-      case Z80_IYL:
-        e.push(0xfd);
-        e.push(0x68 + y.reg);
-        break;
-      default:
-        if (options.displayErrors) {
-          error("Unhandled register: " + std::to_string(y.reg));
-        }
-        break;
-      }
-      default:
-        if (options.displayErrors) {
-          error("Unhandled register: " + std::to_string(y.reg));
-        }
-        break;
-    }
-    break;
-  case Z80_R:
-    if (y.reg!=Z80_A) break;
-    e[0]=0xed; e[1]=0x4f;
-    break;
-  default:
-    if (options.displayErrors) {
-      error("Unhandled register: " + std::to_string(y.reg));
-    }
-    break;
+      break;
   }
   if (!e.size()) error("Illegal operand",ERRREP);
   checkjunk(line);
