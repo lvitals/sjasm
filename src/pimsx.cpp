@@ -403,9 +403,6 @@ void preinc(Data &e, Op x) {
           break;
 
       default:
-          if (options.displayErrors) {
-            error("Unhandled register: " + std::to_string(x.reg));
-          }
           break;
   }
 }
@@ -434,9 +431,6 @@ void postinc(Data &e, Op x) {
       e.push(0x2b);
       break;
     default:
-      if (options.displayErrors) {
-        error("Unhandled register: " + std::to_string(x.reg));
-      }
     break;
   }
 }
@@ -1046,9 +1040,6 @@ void pmLD(string line,Data &e) {
           case Z80_R:
 
           default:
-              if (options.displayErrors) {
-                error("Unhandled register Z80mHL, Z80miHL, Z80mdHL, Z80mHLi, Z80mHLd: " + std::to_string(y.reg));
-              }
               break;
       }
       break;
@@ -1083,9 +1074,6 @@ void pmLD(string line,Data &e) {
           postinc(e, x);
           break;
         default:
-          if (options.displayErrors) {
-            error("Unhandled register Z80mIX, Z80miIX, Z80mdIX, Z80mIXi, Z80mIXd: " + std::to_string(y.reg));
-          }
           break;
       }
       break;
@@ -1120,9 +1108,6 @@ void pmLD(string line,Data &e) {
           postinc(e, x);
           break;
         default:
-          if (options.displayErrors) {
-            error("Unhandled register Z80mIY, Z80miIY, Z80mdIY, Z80mIYi, Z80mIYd:  " + std::to_string(y.reg));
-          }
           break;
       }
       break;
@@ -1147,9 +1132,6 @@ void pmLD(string line,Data &e) {
           e.push(0x33 + y.reg);
           break;
         default:
-          if (options.displayErrors) {
-             error("Unhandled register Z80mnn: " + std::to_string(y.reg));
-          }
           break;
         }
         if (!e.size()) {
@@ -1195,9 +1177,6 @@ void pmLD(string line,Data &e) {
           e[1] = 0x5f;
           break;
         default:
-          if (options.displayErrors) {
-             error("Unhandled register Z80_A: " + std::to_string(y.reg));
-          }
           break;
       }
       if (e.size()) {
@@ -1281,9 +1260,6 @@ void pmLD(string line,Data &e) {
           e.push(0x45 + x.reg * 8);
           break;
         default:
-          if (options.displayErrors) {
-            error("Unhandled register Z80_B, Z80_C, Z80_D, Z80_E, Z80_H, Z80_L: " + std::to_string(y.reg));
-          }
           break;
       }
       break;
@@ -1299,9 +1275,6 @@ void pmLD(string line,Data &e) {
         e.push(0xf9);
         break;
       default:
-        if (options.displayErrors) {
-          error("Unhandled register Z80_SP: " + std::to_string(y.reg));
-        }
         break;
       }
       if (e.size()) {
@@ -1323,9 +1296,6 @@ void pmLD(string line,Data &e) {
           e.push(x.reg - 15);
           break;
         default:
-          if (options.displayErrors) {
-            error("Unhandled register Z80_BC, Z80_DE, Z80_HL: " + std::to_string(y.reg));
-          }
           break;
       }
       if (!e.size()) break;
@@ -1347,9 +1317,6 @@ void pmLD(string line,Data &e) {
         e.push(0x21);
         break;
       default:
-        if (options.displayErrors) {
-          error("Unhandled register Z80_IX, Z80_IY: " + std::to_string(y.reg));
-        }
         break;
       }
       if (!e.size()) break;
@@ -1388,9 +1355,6 @@ void pmLD(string line,Data &e) {
             e.push(check8(y.val));
             break;
           default:
-            if (options.displayErrors) {
-              error("Unhandled register Z80_nn: " + std::to_string(x.reg));
-            }
             break;
         }
         break;
@@ -1450,15 +1414,9 @@ void pmLD(string line,Data &e) {
             e.push(0x68 + y.reg);
             break;
           default:
-            if (options.displayErrors) {
-              error("Unhandled register Z80_E: " + std::to_string(x.reg));
-            }
             break;
         }
         default:
-          if (options.displayErrors) {
-            error("Unhandled register Z80_E");
-          }
           break;
       }
       break;
@@ -1467,9 +1425,6 @@ void pmLD(string line,Data &e) {
       e[0]=0xed; e[1]=0x4f;
       break;
     default:
-      if (options.displayErrors) {
-       error("Unhandled register Z80_R");
-      }
       break;
   }
   if (!e.size()) error("Illegal operand",ERRREP);
