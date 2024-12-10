@@ -2,6 +2,7 @@ Sjasm Z80 Assembler 0.42c
 =========================
 Sjasm is a Z80 assembler originally developed by Sjoerd Mastijn. It is available to download, sources included, at site [XL2S Entertainment](http://xl2s.tk/).
 
+For detailed instructions, refer to the [Sjasm Manual](docs/sjasmmanual.md).
 
 #### Configure and build:
 
