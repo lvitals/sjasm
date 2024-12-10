@@ -1,6 +1,6 @@
 # Sjasm 0.42 manual
 
-Sjasm is a multi pass macro Z80 assembler. It has a lot of features, and unfortunately, to use Sjasm properly you should know them all. But of course you could just take a chance and RTFM later. I know I would. The manual is not finished anyway.
+Sjasm is a multi-pass macro Z80 assembler with many features. While it's ideal to be familiar with all of them to use Sjasm effectively, you can always dive in and refer to the manual as you go. After all, the manual isn't fully finished yet.
 
 Here is the contents:
 
