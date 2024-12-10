@@ -8,3 +8,5 @@ examples/*.bin
 examples/*.com
 examples/*.rom
 examples/*.sym
+.DS_Store
+docs/.DS_Store
