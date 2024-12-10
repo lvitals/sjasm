@@ -1,7 +1,7 @@
 *.o
 .deps
 .vscode
-build/*
+build
 .vscode
 examples/*.lst
 examples/*.bin
